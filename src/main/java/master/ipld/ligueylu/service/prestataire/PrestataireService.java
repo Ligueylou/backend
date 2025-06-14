@@ -10,6 +10,7 @@ import master.ipld.ligueylu.model.Reservation;
 import master.ipld.ligueylu.model.Specialite;
 import master.ipld.ligueylu.model.enums.Role;
 import master.ipld.ligueylu.repository.prestataire.PrestataireRepository;
+import master.ipld.ligueylu.repository.service.ServiceRepository;
 import master.ipld.ligueylu.repository.specialite.SpecialiteRepository;
 import master.ipld.ligueylu.request.AddPrestataireRequest;
 import master.ipld.ligueylu.request.UpdatePrestataireRequest;
@@ -24,6 +25,7 @@ public class PrestataireService implements IPrestataireService {
     private final PrestataireRepository prestataireRepository;
     private final PasswordEncoder passwordEncoder;
     private final SpecialiteRepository specialiteRepository;
+    private final ServiceRepository serviceRepository;
 
     @Override
     public Prestataire addPrestataire(AddPrestataireRequest request) {
@@ -176,22 +178,34 @@ public class PrestataireService implements IPrestataireService {
                 .orElseThrow(() -> new ResourceNotFoundException("Specialite introuvable"));
         prestataire.getSpecialites().remove(specialite);
         prestataireRepository.save(prestataire);
-
     }
 
     @Override
     public List<master.ipld.ligueylu.model.Service> getServicesByPrestataire(Long prestataireId) {
-        return List.of();
+        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
+        return prestataire.getServices();
     }
 
     @Override
     public master.ipld.ligueylu.model.Service addServiceToPrestataire(Long prestataireId, master.ipld.ligueylu.model.Service service) {
-        return null;
+        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
+        Optional<master.ipld.ligueylu.model.Service> existingService = serviceRepository.findById(service.getId());
+        master.ipld.ligueylu.model.Service serviceToAdd = existingService.orElseGet(() -> serviceRepository.save(service));
+        prestataire.getServices().add(serviceToAdd);
+        prestataireRepository.save(prestataire);
+        return serviceToAdd;
     }
 
     @Override
     public void removeServiceFromPrestataire(Long prestataireId, Long serviceId) {
-
+        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
+        master.ipld.ligueylu.model.Service service = serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new ResourceNotFoundException("Service introuvable"));
+        prestataire.getServices().remove(service);
+        prestataireRepository.save(prestataire);
     }
 
     @Override
