@@ -1,5 +1,6 @@
 package master.ipld.ligueylu.service.prestataire;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import master.ipld.ligueylu.exception.ResourceAlreadyExistException;
 import master.ipld.ligueylu.exception.ResourceNotFoundException;
@@ -89,37 +90,49 @@ public class PrestataireService implements IPrestataireService {
 
     @Override
     public List<Prestataire> searchBySpecialite(String nomSpecialite) {
-        return prestataireRepository.findByNomSpecialite(nomSpecialite);
+        return prestataireRepository.findByLibelleSpecialite(nomSpecialite);
     }
 
     @Override
-    public List<Prestataire> findByAdresse(String villeOuRegion) {
-        return List.of();
+    public Optional<Prestataire> findByAdresse(String ville) {
+        return prestataireRepository.findByAdresse_Ville(ville);
     }
 
     @Override
     public List<Prestataire> findByScoreGreaterThan(double minScore) {
-        return List.of();
+        return prestataireRepository.findByScoreGreaterThan(minScore);
     }
 
     @Override
     public void updateScore(Long prestataireId, double newScore) {
+        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                .orElseThrow(() -> new EntityNotFoundException("Prestataire introuvable avec l'id " + prestataireId));
 
+        prestataire.setScore(newScore);
+        prestataireRepository.save(prestataire);
     }
+
 
     @Override
     public double getScore(Long prestataireId) {
-        return 0;
+        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvale avec l'id"));
+        return prestataire.getScore();
     }
 
     @Override
     public Adresse getAdresse(Long prestataireId) {
-        return null;
+        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
+        return prestataire.getAdresse();
     }
 
     @Override
     public void updateAdresse(Long prestataireId, Adresse adresse) {
-
+            Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
+            prestataire.setAdresse(adresse);
+            prestataireRepository.save(prestataire);
     }
 
     @Override
@@ -146,6 +159,9 @@ public class PrestataireService implements IPrestataireService {
 
     @Override
     public void removeSpecialite(Long prestataireId, Long specialiteId) {
+        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
+        Specialite specialite =
 
     }
 

@@ -18,7 +18,7 @@ public interface IPrestataireService {
     void deletePrestataire(Long id);
     Optional<Prestataire> isPrestataireActif(Long prestataireId);
     List<Prestataire> searchBySpecialite(String nomSpecialite);
-    List<Prestataire> findByAdresse(String villeOuRegion);
+    Optional<Prestataire> findByAdresse(String ville);
     List<Prestataire> findByScoreGreaterThan(double minScore);
     void updateScore(Long prestataireId, double newScore);
     double getScore(Long prestataireId);
