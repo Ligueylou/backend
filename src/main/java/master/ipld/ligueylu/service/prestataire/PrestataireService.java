@@ -151,7 +151,9 @@ public class PrestataireService implements IPrestataireService {
 
     @Override
     public Set<Specialite> getSpecialites(Long prestataireId) {
-        return Set.of();
+        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
+        return prestataire.getSpecialites();
     }
 
     @Override
@@ -174,7 +176,6 @@ public class PrestataireService implements IPrestataireService {
                 .orElseThrow(() -> new ResourceNotFoundException("Specialite introuvable"));
         prestataire.getSpecialites().remove(specialite);
         prestataireRepository.save(prestataire);
-
 
     }
 
