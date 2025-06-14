@@ -30,14 +30,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
-    private static final List<String> WHITELIST = List.of(
-            "/api/v1/auth/",
-            "/swagger-ui",
-            "/v3/api-docs",
-            "/api-docs",
-            "/swagger-resources",
-            "/webjars"
-    );
 
     @Override
     protected void doFilterInternal(
@@ -45,6 +37,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
+        final String path = request.getRequestURI();
+
+        // Skip JWT check for Swagger and API docs paths
+        if (path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs") || path.startsWith("/api-docs")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -68,6 +68,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
+
+
 
 
 }

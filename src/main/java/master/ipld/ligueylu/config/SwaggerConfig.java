@@ -15,5 +15,8 @@ public class SwaggerConfig {
                         .version("1.0")
                         .description("Description de l'API"));
     }
+
+
+
 }
 
