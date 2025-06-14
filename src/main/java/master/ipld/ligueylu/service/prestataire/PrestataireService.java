@@ -10,6 +10,7 @@ import master.ipld.ligueylu.model.Reservation;
 import master.ipld.ligueylu.model.Specialite;
 import master.ipld.ligueylu.model.enums.Role;
 import master.ipld.ligueylu.repository.prestataire.PrestataireRepository;
+import master.ipld.ligueylu.repository.reservation.ReservationRepository;
 import master.ipld.ligueylu.repository.service.ServiceRepository;
 import master.ipld.ligueylu.repository.specialite.SpecialiteRepository;
 import master.ipld.ligueylu.request.AddPrestataireRequest;
@@ -26,6 +27,7 @@ public class PrestataireService implements IPrestataireService {
     private final PasswordEncoder passwordEncoder;
     private final SpecialiteRepository specialiteRepository;
     private final ServiceRepository serviceRepository;
+    private final ReservationRepository reservationRepository;
 
     @Override
     public Prestataire addPrestataire(AddPrestataireRequest request) {
@@ -210,16 +212,29 @@ public class PrestataireService implements IPrestataireService {
 
     @Override
     public List<Reservation> getReservationsByPrestataire(Long prestataireId) {
-        return List.of();
+        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
+        return prestataire.getReservations();
     }
 
     @Override
     public void cancelReservation(Long prestataireId, Long reservationId) {
-
+        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation introuvable"));
+        prestataire.getReservations().remove(reservation);
+        prestataireRepository.save(prestataire);
     }
 
     @Override
     public Reservation addReservationToPrestataire(Long prestataireId, Reservation reservation) {
-        return null;
+        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
+        Optional<Reservation> existingReservation = reservationRepository.findById(reservation.getId());
+        Reservation reservationToAdd = existingReservation.orElseGet(() -> reservationRepository.save(reservation));
+        prestataire.getReservations().add(reservationToAdd);
+        prestataireRepository.save(prestataire);
+        return reservationToAdd;
     }
 }
