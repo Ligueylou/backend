@@ -14,6 +14,7 @@ import master.ipld.ligueylu.repository.reservation.ReservationRepository;
 import master.ipld.ligueylu.repository.service.ServiceRepository;
 import master.ipld.ligueylu.repository.specialite.SpecialiteRepository;
 import master.ipld.ligueylu.request.AddPrestataireRequest;
+import master.ipld.ligueylu.request.ScoreUpdateRequest;
 import master.ipld.ligueylu.request.UpdatePrestataireRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -95,6 +96,16 @@ public class PrestataireService implements IPrestataireService {
     }
 
     @Override
+    public boolean activatePrestataire(Long id) {
+        Prestataire prestataire = prestataireRepository.findById(id)
+                .orElseThrow(()-> new ResourceNotFoundException("Prestataire introuvable"));
+
+        prestataire.setActif(true);
+        prestataireRepository.save(prestataire);
+        return true;
+    }
+
+    @Override
     public List<Prestataire> searchBySpecialite(String nomSpecialite) {
         return prestataireRepository.findByLibelleSpecialite(nomSpecialite);
     }
@@ -110,11 +121,11 @@ public class PrestataireService implements IPrestataireService {
     }
 
     @Override
-    public void updateScore(Long prestataireId, double newScore) {
-        Prestataire prestataire = prestataireRepository.findById(prestataireId)
-                .orElseThrow(() -> new EntityNotFoundException("Prestataire introuvable avec l'id " + prestataireId));
+    public void updateScore(ScoreUpdateRequest scoreUpdateRequest) {
+        Prestataire prestataire = prestataireRepository.findById(scoreUpdateRequest.getPrestataireId())
+                .orElseThrow(() -> new EntityNotFoundException("Prestataire introuvable avec l'id " + scoreUpdateRequest.getPrestataireId()));
 
-        prestataire.setScore(newScore);
+        prestataire.setScore(scoreUpdateRequest.getNewScore());
         prestataireRepository.save(prestataire);
     }
 

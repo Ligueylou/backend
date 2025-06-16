@@ -5,6 +5,7 @@ import master.ipld.ligueylu.exception.ResourceAlreadyExistException;
 import master.ipld.ligueylu.exception.ResourceNotFoundException;
 import master.ipld.ligueylu.model.Prestataire;
 import master.ipld.ligueylu.request.AddPrestataireRequest;
+import master.ipld.ligueylu.request.ScoreUpdateRequest;
 import master.ipld.ligueylu.request.UpdatePrestataireRequest;
 import master.ipld.ligueylu.response.ApiResponse;
 import master.ipld.ligueylu.service.prestataire.IPrestataireService;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,7 +24,7 @@ public class PrestataireController {
     private final IPrestataireService prestataireService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse> getAllAdresses() {
+    public ResponseEntity<ApiResponse> getAllPrestataires() {
         try {
             List<Prestataire> prestataires = prestataireService.getAllPrestataire();
             return ResponseEntity.ok(new ApiResponse(
@@ -146,10 +148,119 @@ public class PrestataireController {
             ));
         }
     }
+
     @GetMapping("/stats/specialites")
     public ResponseEntity<ApiResponse> countBySpecialite() {
         Map<String, Long> data = prestataireService.countPrestatairesBySpecialite();
         return ResponseEntity.ok(new ApiResponse(true, "Statistiques par spécialité", data));
     }
+    @GetMapping("/actif/{id}")
+    public ResponseEntity<ApiResponse> isPrestataireActif(@PathVariable Long id) {
+        Optional<Prestataire> prestataireOpt = prestataireService.isPrestataireActif(id);
+
+        if (prestataireOpt.isPresent()) {
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Le prestataire est actif.",
+                    true
+            ));
+        } else {
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Le prestataire est inactif ou introuvable.",
+                    false
+            ));
+        }
+    }
+
+    @GetMapping("/activate/{id}")
+    public ResponseEntity<ApiResponse> activatePrestataire(@PathVariable Long id) {
+        try {
+            boolean activated = prestataireService.activatePrestataire(id);
+
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Prestataire activé avec succès",
+                    activated
+            ));
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
+                    false,
+                    "Prestataire introuvable",
+                    null
+            ));
+        }
+    }
+    @GetMapping("/search/{specialite}")
+    public ResponseEntity<ApiResponse> searchPrestataireBySpecialite(@PathVariable String specialite) {
+        List<Prestataire> prestataires = prestataireService.searchBySpecialite(specialite);
+
+        if (prestataires.isEmpty()) {
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Aucun prestataire trouvé pour la spécialité : " + specialite,
+                    prestataires
+            ));
+        }
+
+        return ResponseEntity.ok(new ApiResponse(
+                true,
+                "Liste des prestataires pour la spécialité : " + specialite,
+                prestataires
+        ));
+    }
+    @GetMapping("/search/adresses/{ville}")
+    public ResponseEntity<ApiResponse> searchPrestataireByVille(@PathVariable String ville) {
+        Optional<Prestataire> prestataires = prestataireService.findByAdresse(ville);
+        if(prestataires.isEmpty()) {
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Aucun prestataire trouvé pour l'adresse : " + ville,
+                    prestataires
+            ));
+        }
+        return ResponseEntity.ok(new ApiResponse(
+                true,
+                "Liste des prestataires pour l'adresse : " + ville,
+                prestataires
+        ));
+    }
+    @GetMapping("/search/score/{score}")
+    public ResponseEntity<ApiResponse> findByScoreGreaterThan(@PathVariable double score) {
+        List<Prestataire> prestataires = prestataireService.findByScoreGreaterThan(score);
+        if (prestataires.isEmpty()) {
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Aucun prestataire trouvé avec un score : " + score,
+                    prestataires
+            ));
+
+        }
+        return ResponseEntity.ok(new ApiResponse(
+                true,
+                "Liste des prestataires avec un score :"+score,
+                prestataires
+        ));
+    }
+    @PutMapping("/score/")
+    public ResponseEntity<ApiResponse> updatePrestataireScore(@RequestBody ScoreUpdateRequest request) {
+        try{
+            prestataireService.updateScore(request);
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Score mis a jour avec success",
+                    true
+            ));
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
+                    false,
+                    e.getMessage(),
+                    null
+            ));
+        }
+    }
+
+
+
 
 }
