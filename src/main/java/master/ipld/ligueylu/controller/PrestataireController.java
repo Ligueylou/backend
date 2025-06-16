@@ -4,9 +4,8 @@ import lombok.RequiredArgsConstructor;
 import master.ipld.ligueylu.exception.ResourceAlreadyExistException;
 import master.ipld.ligueylu.exception.ResourceNotFoundException;
 import master.ipld.ligueylu.model.Prestataire;
-import master.ipld.ligueylu.request.AddPrestataireRequest;
-import master.ipld.ligueylu.request.ScoreUpdateRequest;
-import master.ipld.ligueylu.request.UpdatePrestataireRequest;
+import master.ipld.ligueylu.model.Specialite;
+import master.ipld.ligueylu.request.*;
 import master.ipld.ligueylu.response.ApiResponse;
 import master.ipld.ligueylu.service.prestataire.IPrestataireService;
 import org.springframework.http.HttpStatus;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @RestController
@@ -245,11 +245,12 @@ public class PrestataireController {
     @PutMapping("/score/")
     public ResponseEntity<ApiResponse> updatePrestataireScore(@RequestBody ScoreUpdateRequest request) {
         try{
+            Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
             prestataireService.updateScore(request);
             return ResponseEntity.ok(new ApiResponse(
                     true,
                     "Score mis a jour avec success",
-                    true
+                    prestataire
             ));
         }catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
@@ -259,8 +260,82 @@ public class PrestataireController {
             ));
         }
     }
+    @PutMapping("/adress/")
+    public ResponseEntity<ApiResponse> updatePrestataireAdresse(@RequestBody UpdateAdressPrestRequest request) {
+        try{
+            Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
+            prestataireService.updateAdressePrestataire(request);
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Adresse du prestatataire mis a jour avec success",
+                    prestataire
+            ));
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
+                    false,
+                    e.getMessage(),
+                    null
+            ));
+        }
+    }
+    @PostMapping("/specialite/")
+    public ResponseEntity<ApiResponse> addPrestataireSpecialite(@RequestBody AddSpecialitePrestRequest request)
+    {
+        try{
+            Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
+            prestataireService.addSpecialiteToPrestataire(request);
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Ajout avec success de la specialite",
+                    prestataire
+            ));
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
+                    false,
+                    e.getMessage(),
+                    null
+            ));
+        }
+
+    }
+    @DeleteMapping("/specialite/")
+    public ResponseEntity<ApiResponse> removePrestataireSpecialite(@RequestBody AddSpecialitePrestRequest request)
+    {
+        try{
+            Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
+            prestataireService.removeSpecialiteToPrestataire(request);
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Ajout avec success de la specialite",
+                    prestataire
+            ));
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
+                    false,
+                    e.getMessage(),
+                    null
+            ));
+        }
 
 
-
+    }
+    @GetMapping("/specialite/prestataire/{id}")
+    public ResponseEntity<ApiResponse> getSpecialiteFromPrestataire(@PathVariable Long id){
+        try{
+            Prestataire prestataire = prestataireService.getPrestataireById(id);
+            Set<Specialite> specialite = prestataireService.getSpecialitesFromPrestataire(id);
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Liste des specialites : ",
+                    specialite
+            ));
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
+                    false,
+                    e.getMessage(),
+                    null
+            ));
+        }
+    }
 
 }

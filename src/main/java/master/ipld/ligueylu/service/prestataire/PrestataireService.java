@@ -13,9 +13,7 @@ import master.ipld.ligueylu.repository.prestataire.PrestataireRepository;
 import master.ipld.ligueylu.repository.reservation.ReservationRepository;
 import master.ipld.ligueylu.repository.service.ServiceRepository;
 import master.ipld.ligueylu.repository.specialite.SpecialiteRepository;
-import master.ipld.ligueylu.request.AddPrestataireRequest;
-import master.ipld.ligueylu.request.ScoreUpdateRequest;
-import master.ipld.ligueylu.request.UpdatePrestataireRequest;
+import master.ipld.ligueylu.request.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -145,10 +143,10 @@ public class PrestataireService implements IPrestataireService {
     }
 
     @Override
-    public void updateAdresse(Long prestataireId, Adresse adresse) {
-            Prestataire prestataire = prestataireRepository.findById(prestataireId)
+    public void updateAdressePrestataire(UpdateAdressPrestRequest request) {
+            Prestataire prestataire = prestataireRepository.findById(request.getPrestataireId())
                     .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
-            prestataire.setAdresse(adresse);
+            prestataire.setAdresse(request.getAdresse());
             prestataireRepository.save(prestataire);
     }
 
@@ -165,29 +163,29 @@ public class PrestataireService implements IPrestataireService {
     }
 
     @Override
-    public Set<Specialite> getSpecialites(Long prestataireId) {
+    public Set<Specialite> getSpecialitesFromPrestataire(Long prestataireId) {
         Prestataire prestataire = prestataireRepository.findById(prestataireId)
                 .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
         return prestataire.getSpecialites();
     }
 
     @Override
-    public void addSpecialite(Long prestataireId, Specialite specialite) {
-        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+    public void addSpecialiteToPrestataire(AddSpecialitePrestRequest request) {
+        Prestataire prestataire = prestataireRepository.findById(request.getPrestataireId())
                 .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
-        Optional<Specialite> existingSpecialite = specialiteRepository.findByLibelle(specialite.getLibelle());
-        Specialite specialiteToAdd = existingSpecialite.orElseGet(() -> specialiteRepository.save(specialite));
+        Optional<Specialite> existingSpecialite = specialiteRepository.findByLibelle(request.getSpecialite().getLibelle());
+        Specialite specialiteToAdd = existingSpecialite.orElseGet(() -> specialiteRepository.save(request.getSpecialite()));
         prestataire.getSpecialites().add(specialiteToAdd);
         prestataireRepository.save(prestataire);
 
     }
 
     @Override
-    public void removeSpecialite(Long prestataireId, Long specialiteId) {
-        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+    public void removeSpecialiteToPrestataire(AddSpecialitePrestRequest request) {
+        Prestataire prestataire = prestataireRepository.findById(request.getPrestataireId())
                 .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
 
-        Specialite specialite = specialiteRepository.findById(specialiteId)
+        Specialite specialite = specialiteRepository.findById(request.getSpecialite().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Specialite introuvable"));
         prestataire.getSpecialites().remove(specialite);
         prestataireRepository.save(prestataire);

@@ -1,9 +1,7 @@
 package master.ipld.ligueylu.service.prestataire;
 
 import master.ipld.ligueylu.model.*;
-import master.ipld.ligueylu.request.AddPrestataireRequest;
-import master.ipld.ligueylu.request.ScoreUpdateRequest;
-import master.ipld.ligueylu.request.UpdatePrestataireRequest;
+import master.ipld.ligueylu.request.*;
 
 import java.util.List;
 import java.util.Map;
@@ -26,11 +24,11 @@ public interface IPrestataireService {
 
     double getScore(Long prestataireId);
     Adresse getAdresse(Long prestataireId);
-    void updateAdresse(Long prestataireId, Adresse adresse);
+    void updateAdressePrestataire(UpdateAdressPrestRequest updateAdressPrestRequest);
     Map<String, Long> countPrestatairesBySpecialite();
-    Set<Specialite> getSpecialites(Long prestataireId);
-    void addSpecialite(Long prestataireId, Specialite specialite);
-    void removeSpecialite(Long prestataireId, Long specialiteId);
+    Set<Specialite> getSpecialitesFromPrestataire(Long prestataireId);
+    void addSpecialiteToPrestataire(AddSpecialitePrestRequest request);
+    void removeSpecialiteToPrestataire(AddSpecialitePrestRequest request);
     List<Service> getServicesByPrestataire(Long prestataireId);
     Service addServiceToPrestataire(Long prestataireId, Service service);
     void removeServiceFromPrestataire(Long prestataireId, Long serviceId);
