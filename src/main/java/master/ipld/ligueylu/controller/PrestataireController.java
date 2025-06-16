@@ -306,7 +306,7 @@ public class PrestataireController {
             prestataireService.removeSpecialiteToPrestataire(request);
             return ResponseEntity.ok(new ApiResponse(
                     true,
-                    "Ajout avec success de la specialite",
+                    "Specialite supprimé avec success :",
                     prestataire
             ));
         }catch (ResourceNotFoundException e) {
@@ -336,6 +336,88 @@ public class PrestataireController {
                     null
             ));
         }
+    }
+    @PostMapping("/service/")
+    public ResponseEntity<ApiResponse> addPrestataireService(@RequestBody AddServicePrestRequest request)
+    {
+        try{
+            Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
+            prestataireService.addServiceToPrestataire(request);
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Ajout avec success du service",
+                    prestataire
+            ));
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
+                    false,
+                    e.getMessage(),
+                    null
+            ));
+        }
+
+    }
+    @DeleteMapping("/specialite/")
+    public ResponseEntity<ApiResponse> removePrestataireService(@RequestBody AddServicePrestRequest request)
+    {
+        try{
+            Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
+            prestataireService.removeServiceFromPrestataire(request);
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Service quitter avec success",
+                    prestataire
+            ));
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
+                    false,
+                    e.getMessage(),
+                    null
+            ));
+        }
+
+
+    }
+    @PostMapping("/reservation/add/")
+    public ResponseEntity<ApiResponse> addPrestataireReservation(@RequestBody AddReservationPrestRequest request)
+    {
+        try{
+            Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
+            prestataireService.addReservationToPrestataire(request);
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Ajout avec success de la reservation",
+                    prestataire
+            ));
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
+                    false,
+                    e.getMessage(),
+                    null
+            ));
+        }
+
+    }
+    @DeleteMapping("/reservation/cancel/")
+    public ResponseEntity<ApiResponse> removePrestataireReservation(@RequestBody AddReservationPrestRequest request)
+    {
+        try{
+            Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
+            prestataireService.cancelReservation(request);
+            return ResponseEntity.ok(new ApiResponse(
+                    true,
+                    "Ajout avec success de la reservation",
+                    prestataire
+            ));
+        }catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
+                    false,
+                    e.getMessage(),
+                    null
+            ));
+        }
+
+
     }
 
 }

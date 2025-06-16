@@ -30,9 +30,9 @@ public interface IPrestataireService {
     void addSpecialiteToPrestataire(AddSpecialitePrestRequest request);
     void removeSpecialiteToPrestataire(AddSpecialitePrestRequest request);
     List<Service> getServicesByPrestataire(Long prestataireId);
-    Service addServiceToPrestataire(Long prestataireId, Service service);
-    void removeServiceFromPrestataire(Long prestataireId, Long serviceId);
+    Service addServiceToPrestataire(AddServicePrestRequest request);
+    void removeServiceFromPrestataire(AddServicePrestRequest request);
     List<Reservation> getReservationsByPrestataire(Long prestataireId);
-    void cancelReservation(Long prestataireId, Long reservationId);
-    Reservation addReservationToPrestataire(Long prestataireId, Reservation reservation);
+    void cancelReservation(AddReservationPrestRequest request);
+    Reservation addReservationToPrestataire(AddReservationPrestRequest request);
 }

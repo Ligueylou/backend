@@ -199,21 +199,21 @@ public class PrestataireService implements IPrestataireService {
     }
 
     @Override
-    public master.ipld.ligueylu.model.Service addServiceToPrestataire(Long prestataireId, master.ipld.ligueylu.model.Service service) {
-        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+    public master.ipld.ligueylu.model.Service addServiceToPrestataire(AddServicePrestRequest request) {
+        Prestataire prestataire = prestataireRepository.findById(request.getPrestataireId())
                 .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
-        Optional<master.ipld.ligueylu.model.Service> existingService = serviceRepository.findById(service.getId());
-        master.ipld.ligueylu.model.Service serviceToAdd = existingService.orElseGet(() -> serviceRepository.save(service));
+        Optional<master.ipld.ligueylu.model.Service> existingService = serviceRepository.findById(request.getService().getId());
+        master.ipld.ligueylu.model.Service serviceToAdd = existingService.orElseGet(() -> serviceRepository.save(request.getService()));
         prestataire.getServices().add(serviceToAdd);
         prestataireRepository.save(prestataire);
         return serviceToAdd;
     }
 
     @Override
-    public void removeServiceFromPrestataire(Long prestataireId, Long serviceId) {
-        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+    public void removeServiceFromPrestataire(AddServicePrestRequest request) {
+        Prestataire prestataire = prestataireRepository.findById(request.getPrestataireId())
                 .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
-        master.ipld.ligueylu.model.Service service = serviceRepository.findById(serviceId)
+        master.ipld.ligueylu.model.Service service = serviceRepository.findById(request.getService().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Service introuvable"));
         prestataire.getServices().remove(service);
         prestataireRepository.save(prestataire);
@@ -227,21 +227,21 @@ public class PrestataireService implements IPrestataireService {
     }
 
     @Override
-    public void cancelReservation(Long prestataireId, Long reservationId) {
-        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+    public void cancelReservation(AddReservationPrestRequest request) {
+        Prestataire prestataire = prestataireRepository.findById(request.getPrestataireId())
                 .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
-        Reservation reservation = reservationRepository.findById(reservationId)
+        Reservation reservation = reservationRepository.findById(request.getReservation().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Reservation introuvable"));
         prestataire.getReservations().remove(reservation);
         prestataireRepository.save(prestataire);
     }
 
     @Override
-    public Reservation addReservationToPrestataire(Long prestataireId, Reservation reservation) {
-        Prestataire prestataire = prestataireRepository.findById(prestataireId)
+    public Reservation addReservationToPrestataire(AddReservationPrestRequest request) {
+        Prestataire prestataire = prestataireRepository.findById(request.getPrestataireId())
                 .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
-        Optional<Reservation> existingReservation = reservationRepository.findById(reservation.getId());
-        Reservation reservationToAdd = existingReservation.orElseGet(() -> reservationRepository.save(reservation));
+        Optional<Reservation> existingReservation = reservationRepository.findById(request.getReservation().getId());
+        Reservation reservationToAdd = existingReservation.orElseGet(() -> reservationRepository.save(request.getReservation()));
         prestataire.getReservations().add(reservationToAdd);
         prestataireRepository.save(prestataire);
         return reservationToAdd;
