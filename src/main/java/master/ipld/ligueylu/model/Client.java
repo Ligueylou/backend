@@ -25,5 +25,6 @@ public class Client extends Utilisateur {
     private Adresse adresse;
 
     @OneToMany(cascade = CascadeType.ALL , mappedBy = "client", orphanRemoval = true)
+    @JsonIgnore
     private List<Reservation> reservations;
 }

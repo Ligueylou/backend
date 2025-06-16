@@ -162,12 +162,12 @@ public class PrestataireController {
             return ResponseEntity.ok(new ApiResponse(
                     true,
                     "Le prestataire est actif.",
-                    true
+                    prestataireOpt
             ));
         } else {
             return ResponseEntity.ok(new ApiResponse(
-                    true,
-                    "Le prestataire est inactif ou introuvable.",
+                    false,
+                    "Le prestataire est inactif.",
                     false
             ));
         }
@@ -176,17 +176,18 @@ public class PrestataireController {
     @GetMapping("/activate/{id}")
     public ResponseEntity<ApiResponse> activatePrestataire(@PathVariable Long id) {
         try {
+            Prestataire prestataire = prestataireService.getPrestataireById(id);
             boolean activated = prestataireService.activatePrestataire(id);
 
             return ResponseEntity.ok(new ApiResponse(
                     true,
                     "Prestataire activé avec succès",
-                    activated
+                    prestataire
             ));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ApiResponse(
                     false,
-                    "Prestataire introuvable",
+                    e.getMessage(),
                     null
             ));
         }
@@ -260,7 +261,7 @@ public class PrestataireController {
             ));
         }
     }
-    @PutMapping("/adress/")
+    @PutMapping("/adress/update/")
     public ResponseEntity<ApiResponse> updatePrestataireAdresse(@RequestBody UpdateAdressPrestRequest request) {
         try{
             Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
@@ -278,9 +279,8 @@ public class PrestataireController {
             ));
         }
     }
-    @PostMapping("/specialite/")
-    public ResponseEntity<ApiResponse> addPrestataireSpecialite(@RequestBody AddSpecialitePrestRequest request)
-    {
+    @PostMapping("/specialite/add/")
+    public ResponseEntity<ApiResponse> addPrestataireSpecialite(@RequestBody AddSpecialitePrestRequest request) {
         try{
             Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
             prestataireService.addSpecialiteToPrestataire(request);
@@ -298,7 +298,7 @@ public class PrestataireController {
         }
 
     }
-    @DeleteMapping("/specialite/")
+    @DeleteMapping("/specialite/remove/")
     public ResponseEntity<ApiResponse> removePrestataireSpecialite(@RequestBody AddSpecialitePrestRequest request)
     {
         try{
@@ -337,9 +337,8 @@ public class PrestataireController {
             ));
         }
     }
-    @PostMapping("/service/")
-    public ResponseEntity<ApiResponse> addPrestataireService(@RequestBody AddServicePrestRequest request)
-    {
+    @PostMapping("/service/add/")
+    public ResponseEntity<ApiResponse> addPrestataireService(@RequestBody AddServicePrestRequest request) {
         try{
             Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
             prestataireService.addServiceToPrestataire(request);
@@ -357,7 +356,7 @@ public class PrestataireController {
         }
 
     }
-    @DeleteMapping("/specialite/")
+    @DeleteMapping("/specialite/cancel/")
     public ResponseEntity<ApiResponse> removePrestataireService(@RequestBody AddServicePrestRequest request)
     {
         try{
@@ -379,8 +378,7 @@ public class PrestataireController {
 
     }
     @PostMapping("/reservation/add/")
-    public ResponseEntity<ApiResponse> addPrestataireReservation(@RequestBody AddReservationPrestRequest request)
-    {
+    public ResponseEntity<ApiResponse> addPrestataireReservation(@RequestBody AddReservationPrestRequest request) {
         try{
             Prestataire prestataire = prestataireService.getPrestataireById(request.getPrestataireId());
             prestataireService.addReservationToPrestataire(request);

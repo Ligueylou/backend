@@ -28,6 +28,7 @@ public class Service {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prestataire_id")
+    @JsonIgnore
     private Prestataire prestataire;
 
     @OneToOne
@@ -36,8 +37,10 @@ public class Service {
     private Reservation reservation;
 
     @OneToOne(mappedBy = "service", cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
     private Paiement paiement;
 
     @OneToOne(mappedBy = "service" , cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
     private Evaluation evaluation;
 }

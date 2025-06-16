@@ -34,5 +34,6 @@ public class Paiement {
     private Service service;
 
     @OneToOne(cascade = CascadeType.ALL , mappedBy = "paiement")
+    @JsonIgnore
     private Notification notification;
 }

@@ -35,12 +35,15 @@ public class Prestataire extends Utilisateur {
     @JoinTable(name = "specialite_prestataire", joinColumns = {
             @JoinColumn(name = "specialite_id")},
             inverseJoinColumns = {@JoinColumn(name = "id")})
+    @JsonIgnore
     private Set<Specialite> specialites = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL , mappedBy = "prestataire",orphanRemoval = true)
+    @JsonIgnore
     private List<Service> services;
 
     @OneToMany(cascade = CascadeType.ALL , mappedBy = "prestataire",orphanRemoval = true)
+    @JsonIgnore
     private List<Reservation> reservations;
 
     public Prestataire(String email, String nomComplet, String password, String telephone) {

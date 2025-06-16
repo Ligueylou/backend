@@ -1,5 +1,6 @@
 package master.ipld.ligueylu.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -31,9 +32,11 @@ public class Adresse {
     private String pays;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "adresse", orphanRemoval = true)
+    @JsonIgnore
     private List<Client> clients;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "adresse", orphanRemoval = true)
+    @JsonIgnore
     private List<Prestataire> prestataires;
 
 

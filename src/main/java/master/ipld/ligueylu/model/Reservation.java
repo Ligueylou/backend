@@ -44,9 +44,11 @@ public class Reservation {
     private Prestataire prestataire;
 
     @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
     private Service service;
 
     @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
     private Notification notification;
 
 }

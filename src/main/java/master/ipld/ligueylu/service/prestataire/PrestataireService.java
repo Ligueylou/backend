@@ -105,6 +105,10 @@ public class PrestataireService implements IPrestataireService {
 
     @Override
     public List<Prestataire> searchBySpecialite(String nomSpecialite) {
+        if(nomSpecialite ==null || nomSpecialite.trim().isEmpty())
+        {
+            throw new IllegalArgumentException("Le nom de la specialite ne doit pas etre vide ");
+        }
         return prestataireRepository.findByLibelleSpecialite(nomSpecialite);
     }
 
@@ -172,13 +176,23 @@ public class PrestataireService implements IPrestataireService {
     @Override
     public void addSpecialiteToPrestataire(AddSpecialitePrestRequest request) {
         Prestataire prestataire = prestataireRepository.findById(request.getPrestataireId())
-                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
-        Optional<Specialite> existingSpecialite = specialiteRepository.findByLibelle(request.getSpecialite().getLibelle());
-        Specialite specialiteToAdd = existingSpecialite.orElseGet(() -> specialiteRepository.save(request.getSpecialite()));
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable avec l'id : " + request.getPrestataireId()));
+
+        Specialite specialite = request.getSpecialite();
+
+        // Rechercher la spécialité par libellé (en ignorant la casse, optionnel)
+        Optional<Specialite> existingSpecialite = specialiteRepository.findByLibelleIgnoreCase(specialite.getLibelle());
+
+        Specialite specialiteToAdd = existingSpecialite.orElseGet(() -> {
+            // Préserve la cohérence relationnelle
+            specialite.getPrestataires().add(prestataire);
+            return specialiteRepository.save(specialite);
+        });
+
         prestataire.getSpecialites().add(specialiteToAdd);
         prestataireRepository.save(prestataire);
-
     }
+
 
     @Override
     public void removeSpecialiteToPrestataire(AddSpecialitePrestRequest request) {
@@ -201,13 +215,24 @@ public class PrestataireService implements IPrestataireService {
     @Override
     public master.ipld.ligueylu.model.Service addServiceToPrestataire(AddServicePrestRequest request) {
         Prestataire prestataire = prestataireRepository.findById(request.getPrestataireId())
-                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
-        Optional<master.ipld.ligueylu.model.Service> existingService = serviceRepository.findById(request.getService().getId());
-        master.ipld.ligueylu.model.Service serviceToAdd = existingService.orElseGet(() -> serviceRepository.save(request.getService()));
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable avec l'id : " + request.getPrestataireId()));
+
+        master.ipld.ligueylu.model.Service service = request.getService();
+        master.ipld.ligueylu.model.Service serviceToAdd;
+
+        if (service.getId() != null) {
+            serviceToAdd = serviceRepository.findById(service.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Service introuvable avec l'id : " + service.getId()));
+        } else {
+            service.setPrestataire(prestataire); // Lier le prestataire au service
+            serviceToAdd = serviceRepository.save(service);
+        }
         prestataire.getServices().add(serviceToAdd);
         prestataireRepository.save(prestataire);
+
         return serviceToAdd;
     }
+
 
     @Override
     public void removeServiceFromPrestataire(AddServicePrestRequest request) {
@@ -239,11 +264,25 @@ public class PrestataireService implements IPrestataireService {
     @Override
     public Reservation addReservationToPrestataire(AddReservationPrestRequest request) {
         Prestataire prestataire = prestataireRepository.findById(request.getPrestataireId())
-                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable"));
-        Optional<Reservation> existingReservation = reservationRepository.findById(request.getReservation().getId());
-        Reservation reservationToAdd = existingReservation.orElseGet(() -> reservationRepository.save(request.getReservation()));
+                .orElseThrow(() -> new ResourceNotFoundException("Prestataire introuvable avec l'id : " + request.getPrestataireId()));
+
+        Reservation reservation = request.getReservation();
+        Reservation reservationToAdd;
+        if (reservation.getId() != null) {
+            reservationToAdd = reservationRepository.findById(reservation.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Réservation introuvable avec l'id : " + reservation.getId()));
+        } else {
+            reservation.setPrestataire(prestataire);
+            if (reservation.getCreationDate() == null) {
+                reservation.setCreationDate(new Date());
+            }
+
+            reservationToAdd = reservationRepository.save(reservation);
+        }
         prestataire.getReservations().add(reservationToAdd);
         prestataireRepository.save(prestataire);
+
         return reservationToAdd;
     }
+
 }

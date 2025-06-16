@@ -1,6 +1,7 @@
 package master.ipld.ligueylu.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -22,5 +23,6 @@ import java.util.List;
 public class Administrateur extends Utilisateur {
     private String codeSecret;
     @OneToMany(cascade = CascadeType.ALL ,mappedBy = "administrateur" , orphanRemoval = true)
+    @JsonIgnore
     private List<Prestataire> prestataires;
 }
